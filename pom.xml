@@ -83,6 +83,7 @@
                     <configuration>
                         <systemPropertyVariables>
                             <java.awt.headless>true</java.awt.headless>
+                            <plugdesk.plugins>off</plugdesk.plugins>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>

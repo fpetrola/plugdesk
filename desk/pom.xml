@@ -15,6 +15,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>dev.plugdesk</groupId>
+            <artifactId>plugdesk-app</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>dev.crystal.plugins</groupId>
             <artifactId>framework-api</artifactId>
         </dependency>

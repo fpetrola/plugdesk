@@ -11,10 +11,10 @@ import java.util.Properties;
  * What the application on the desk says it is, in {@code META-INF/plugdesk/application.properties}: its name, the
  * folder in the person's home where it keeps their things, the repository whose releases are its plugins (and the one
  * they were published from before, if they moved), how the jars of its plugins start, and what it calls itself when
- * it asks for a file.
+ * it asks for a file, and the look it starts with.
  */
 public record Application(String name, String home, String releases, String formerly, List<String> plugsIn,
-                          String asking) {
+                          String asking, String look) {
 
   static final String DECLARED = "META-INF/plugdesk/application.properties";
 
@@ -36,6 +36,6 @@ public record Application(String name, String home, String releases, String form
     return new Application(name, said.getProperty("home", "." + name), said.getProperty("releases"),
         said.getProperty("releases.formerly"),
         Arrays.stream(said.getProperty("plugs-in", "").split(",")).map(String::trim).filter(s -> !s.isEmpty()).toList(),
-        said.getProperty("asking", name));
+        said.getProperty("asking", name), said.getProperty("look", "Metal"));
   }
 }
