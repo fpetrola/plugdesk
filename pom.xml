@@ -13,6 +13,7 @@
     <description>The Swing base of an application that grows by crystal-plugins: a desk that knows nothing of the application on it.</description>
 
     <modules>
+        <module>app</module>
         <module>desk</module>
     </modules>
 
@@ -20,6 +21,7 @@
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <crystal.version>0.1.0-SNAPSHOT</crystal.version>
+        <jackson.version>2.16.0</jackson.version>
         <junit.version>5.11.4</junit.version>
     </properties>
 
@@ -41,6 +43,16 @@
                 <version>${crystal.version}</version>
             </dependency>
             <dependency>
+                <groupId>dev.crystal.plugins</groupId>
+                <artifactId>framework-guice</artifactId>
+                <version>${crystal.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
                 <version>${junit.version}</version>
@@ -56,8 +68,12 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.13.0</version>
                     <configuration>
-                        <!-- The role processor writes META-INF/crystal/roles.idx, which is how crystal knows a role. -->
+                        <!-- The role processor writes META-INF/crystal/roles.idx, which is how crystal knows a role. Only
+                             that one: pf4j's, on the class path through the runtime, would write an empty extensions.idx. -->
                         <proc>full</proc>
+                        <annotationProcessors>
+                            <annotationProcessor>dev.crystal.plugins.build.processor.RoleProcessor</annotationProcessor>
+                        </annotationProcessors>
                     </configuration>
                 </plugin>
                 <plugin>
