@@ -14,6 +14,7 @@ import javax.swing.JToolBar;
 import javax.swing.MenuElement;
 import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.util.Collection;
 import java.util.Comparator;
@@ -35,6 +36,7 @@ public class Workbench extends JPanel implements Desk {
   final JToolBar buttons = new JToolBar();
   private final JLabel status = new JLabel(" ");
   private final Map<String, JComponent> open = new HashMap<>();
+  private static final String PLACE = "place";
 
   public Workbench(Layout layout, Collection<Action> actions, Collection<Actions> lists) {
     super(new BorderLayout());
@@ -68,6 +70,41 @@ public class Workbench extends JPanel implements Desk {
       open.put(window.path(), shown);
     }
     layout.show(window.text(), shown, window.prefers());
+  }
+
+  @Override
+  public String nameOf(JComponent window) {
+    return open.entrySet().stream().filter(one -> one.getValue() == window).map(Map.Entry::getKey).findFirst().orElse(null);
+  }
+
+  @Override
+  public JComponent window(String name) {
+    return offered().stream().filter(one -> one instanceof Window && one.path().equals(name)).findFirst()
+        .map(one -> {
+          show((Window) one);
+          return open.get(name);
+        }).orElse(null);
+  }
+
+  /** Every window on the desk, from the back to the front, with where it is and what it has inside. */
+  public List<Map<String, String>> keep() {
+    return layout.backToFront().stream().map(window -> {
+      Map<String, String> kept = new java.util.TreeMap<>(inside(window));
+      if (kept.isEmpty()) return kept;
+      Rectangle place = layout.placeOf(window);
+      kept.put(PLACE, place.x + "," + place.y + "," + place.width + "," + place.height);
+      return kept;
+    }).filter(kept -> !kept.isEmpty()).toList();
+  }
+
+  /** The windows kept, opened again in that order, each where it was. */
+  public void bringBack(List<Map<String, String>> kept) {
+    for (Map<String, String> one : kept) {
+      JComponent window = bringBack(one);
+      if (window == null || !one.containsKey(PLACE)) continue;
+      int[] at = java.util.Arrays.stream(one.get(PLACE).split(",")).mapToInt(Integer::parseInt).toArray();
+      layout.place(window, new Rectangle(at[0], at[1], at[2], at[3]));
+    }
   }
 
   @Override

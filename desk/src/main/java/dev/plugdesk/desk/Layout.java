@@ -1,6 +1,8 @@
 package dev.plugdesk.desk;
 
 import javax.swing.JComponent;
+import java.awt.Rectangle;
+import java.util.List;
 
 /** How the windows of a desk are arranged. */
 public interface Layout {
@@ -13,4 +15,12 @@ public interface Layout {
 
   /** Whether it is still on the screen. */
   boolean shows(JComponent window);
+
+  /** What is on the screen, from the back to the front. */
+  List<JComponent> backToFront();
+
+  /** Where it is, as it would be neither maximised nor minimised. */
+  Rectangle placeOf(JComponent window);
+
+  void place(JComponent window, Rectangle place);
 }

@@ -3,8 +3,11 @@ package dev.plugdesk.desk;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
+import java.awt.Rectangle;
 import java.beans.PropertyVetoException;
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 
 /** Free windows inside the desk, each in a frame of its own. */
@@ -35,6 +38,26 @@ public class Mdi implements Layout {
   public boolean shows(JComponent window) {
     JInternalFrame frame = frames.get(window);
     return frame != null && !frame.isClosed();
+  }
+
+  @Override
+  public List<JComponent> backToFront() {
+    List<JComponent> shown = new ArrayList<>();
+    for (JInternalFrame frame : desktop.getAllFrames())
+      frames.forEach((window, its) -> {
+        if (its == frame) shown.addFirst(window);
+      });
+    return shown;
+  }
+
+  @Override
+  public Rectangle placeOf(JComponent window) {
+    return frames.get(window).getNormalBounds();
+  }
+
+  @Override
+  public void place(JComponent window, Rectangle place) {
+    frames.get(window).setBounds(place);
   }
 
   private static JInternalFrame framed(String title, JComponent inside) {
