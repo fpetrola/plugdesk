@@ -11,10 +11,10 @@ import java.util.Properties;
  * What the application on the desk says it is, in {@code META-INF/plugdesk/application.properties}: its name, the
  * folder in the person's home where it keeps their things, the repository whose releases are its plugins (and the one
  * they were published from before, if they moved), how the jars of its plugins start, and what it calls itself when
- * it asks for a file, and the look it starts with.
+ * it asks for a file, the look it starts with, and the order of its menus.
  */
 public record Application(String name, String home, String releases, String formerly, List<String> plugsIn,
-                          String asking, String look) {
+                          String asking, String look, List<String> menus) {
 
   static final String DECLARED = "META-INF/plugdesk/application.properties";
 
@@ -23,6 +23,10 @@ public record Application(String name, String home, String releases, String form
   public static synchronized Application it() {
     if (it == null) it = read();
     return it;
+  }
+
+  private static List<String> listed(String commas) {
+    return Arrays.stream(commas.split(",")).map(String::trim).filter(one -> !one.isEmpty()).toList();
   }
 
   private static Application read() {
@@ -35,7 +39,7 @@ public record Application(String name, String home, String releases, String form
     String name = said.getProperty("name", "plugdesk");
     return new Application(name, said.getProperty("home", "." + name), said.getProperty("releases"),
         said.getProperty("releases.formerly"),
-        Arrays.stream(said.getProperty("plugs-in", "").split(",")).map(String::trim).filter(s -> !s.isEmpty()).toList(),
-        said.getProperty("asking", name), said.getProperty("look", "Metal"));
+        listed(said.getProperty("plugs-in", "")),
+        said.getProperty("asking", name), said.getProperty("look", "Metal"), listed(said.getProperty("menus", "")));
   }
 }

@@ -3,10 +3,8 @@ package dev.plugdesk.desk;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.swing.JMenu;
 import javax.swing.UIManager;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -18,14 +16,11 @@ class LookAndFeelsTest {
   }
 
   @Test
-  void theMenuHasEveryFamilyAPluginBringsAndThoseOfJava() {
-    JMenu menu = new JMenu("Look");
+  void everyLookIsAnActionUnderItsFamily() {
+    List<String> paths = LookAndFeels.actions("Window/Look", chosen -> { }).actions().stream().map(Action::path).toList();
 
-    LookAndFeels.fillMenu(menu, chosen -> { });
-
-    assertEquals(List.of("Painted: One, Two", "System: Metal, Nimbus, Native"), Stream.of(menu.getMenuComponents())
-        .map(family -> ((JMenu) family).getText() + ": " + String.join(", ", Stream.of(((JMenu) family).getMenuComponents())
-            .map(item -> ((javax.swing.JMenuItem) item).getText()).toList())).toList());
+    assertEquals(List.of("Window/Look/Painted/One", "Window/Look/Painted/Two", "Window/Look/System/Metal",
+        "Window/Look/System/Nimbus", "Window/Look/System/Native"), paths);
   }
 
   @Test

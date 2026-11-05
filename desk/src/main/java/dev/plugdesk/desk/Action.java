@@ -16,6 +16,11 @@ public interface Action {
   /** Where it goes in the menus, each menu followed by a slash, and its own name last: {@code File/Open...}. */
   String path();
 
+  /** A name as one step of a path: a slash in it would read as two, so it becomes the slash that is not one. */
+  static String step(String name) {
+    return name.replace('/', '\u2215');
+  }
+
   void run();
 
   default String text() {
@@ -32,8 +37,18 @@ public interface Action {
     return null;
   }
 
-  /** Lower goes first, in its menu and on the bar. */
+  /** Lower goes first, in its menu and on the bar; a separator goes between hundreds. */
   default int place() {
     return 100;
+  }
+
+  /** The plugin that has to be brought before this can be done, or null when it can be done now. */
+  default String needs() {
+    return null;
+  }
+
+  /** Whether it is on, for something that is either on or off; null for anything else. */
+  default Boolean ticked() {
+    return null;
   }
 }

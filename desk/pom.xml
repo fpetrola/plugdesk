@@ -27,6 +27,12 @@
             <groupId>dev.crystal.plugins</groupId>
             <artifactId>framework-runtime</artifactId>
         </dependency>
+        <!-- Crystal's own panel for the plugins: what the plugins window shows. -->
+        <dependency>
+            <groupId>dev.crystal.plugins</groupId>
+            <artifactId>framework-swing</artifactId>
+            <version>${crystal.version}</version>
+        </dependency>
         <dependency>
             <groupId>dev.crystal.plugins</groupId>
             <artifactId>framework-build-processor</artifactId>

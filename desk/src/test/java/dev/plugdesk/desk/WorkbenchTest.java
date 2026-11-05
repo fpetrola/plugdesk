@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class WorkbenchTest {
 
@@ -44,7 +45,7 @@ class WorkbenchTest {
       Workbench desk = new Workbench(new Mdi(), List.of(new Doing("A/D", DOT, 100, List.of(), new AtomicInteger()),
           new Doing("A/B/C"), new Doing("Z/First", null, 1, List.of(), new AtomicInteger())), List.of());
 
-      assertEquals(List.of("Z: First", "A: B: C", "A: D"), tree(desk.menus()));
+      assertEquals(List.of("Z: First", "A: D", "A: B: C"), tree(desk.menus()), "at the same place, in the order offered");
       assertEquals(List.of("D"), Stream.of(desk.buttons.getComponents()).map(b -> ((JButton) b).getToolTipText()).toList());
     });
   }
@@ -142,6 +143,47 @@ class WorkbenchTest {
         assertEquals(List.of("Help: About"), tree(desk.menus()));
       });
     }
+  }
+
+  record Offering(String path, int place, String needs, Boolean ticked) implements Action {
+    public void run() {
+    }
+  }
+
+  @Test
+  void aSeparatorGoesBetweenHundredsAndTheApplicationSaysTheOrderOfItsMenus() throws Exception {
+    onTheEventThread(() -> {
+      Workbench desk = new Workbench(new Mdi(), List.of(new Offering("Tools/Ruler", 100, null, null),
+          new Offering("File/Quit", 400, null, null), new Offering("File/Open...", 100, null, null),
+          new Offering("Help/About", 100, null, null)), List.of());
+
+      assertEquals(List.of("File", "Help", "Tools"), Stream.of(desk.menus().getComponents()).map(m -> ((JMenu) m).getText()).toList(),
+          "File and Help as the application lists them, the rest after");
+      assertEquals(List.of("Open...", "----", "Quit"), Stream.of(desk.menus().getMenu(0).getMenuComponents())
+          .map(c -> c instanceof JMenuItem item ? item.getText() : "----").toList());
+    });
+  }
+
+  @Test
+  void whatIsOnShowsTicked() throws Exception {
+    onTheEventThread(() -> {
+      Workbench desk = new Workbench(new Mdi(), List.of(new Offering("View/Scan lines", 100, null, true)), List.of());
+
+      JMenuItem item = desk.menus().getMenu(0).getItem(0);
+      assertTrue(item instanceof javax.swing.JCheckBoxMenuItem && item.isSelected());
+    });
+  }
+
+  @Test
+  void whatNeedsAPluginIsGreyAndAlsoOnTheMoreButton() throws Exception {
+    onTheEventThread(() -> {
+      Workbench desk = new Workbench(new Mdi(), List.of(new Offering("Tools/Map", 100, "tool-map", null)), List.of());
+
+      JMenuItem item = desk.menus().getMenu(0).getItem(0);
+      assertEquals("Map  (+)", item.getText());
+      assertEquals("Needs tool-map: choosing it brings it", item.getToolTipText());
+      assertEquals(List.of("+"), Stream.of(desk.buttons.getComponents()).map(b -> ((JButton) b).getText()).toList());
+    });
   }
 
   /** Each item of the bar with the menus it is in, outermost first. */

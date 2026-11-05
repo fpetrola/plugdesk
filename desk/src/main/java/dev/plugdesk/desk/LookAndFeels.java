@@ -111,9 +111,8 @@ public final class LookAndFeels {
     }
   }
 
-  /** Lo que ofrece el menu cambia con los plugins, y un look que se fue con el suyo vuelve con el. */
-  public static void lookPluginsChanged(JMenu menu, Consumer<String> chosen) {
-    if (menu != null) fillMenu(menu, chosen);
+  /** Un look que se fue con su plugin vuelve con el: dicho cada vez que cambia lo que hay puesto. */
+  public static void lookPluginsChanged() {
     String back = wornBeforeItsPluginLeft;
     all().stream().filter(laf -> laf.id().equals(back)).findFirst().ifPresent(laf -> {
       wornBeforeItsPluginLeft = null;
@@ -121,22 +120,17 @@ public final class LookAndFeels {
     });
   }
 
-  /** The families as submenus, each item telling the caller which name to remember. */
-  public static void fillMenu(JMenu menu, Consumer<String> chosen) {
-    menu.removeAll();
-    Map<String, JMenu> families = new LinkedHashMap<>();
-    for (Laf laf : all()) {
-      families.computeIfAbsent(laf.family, family -> {
-        JMenu submenu = new JMenu(family);
-        menu.add(submenu);
-        return submenu;
-      }).add(new AbstractAction(laf.name) {
-        public void actionPerformed(java.awt.event.ActionEvent e) {
-          tryOn(laf, chosen);
-        }
-      });
-    }
-    families.values().forEach(family -> Workbench.scrollingWhenLong(family.getPopupMenu()));
+  /** Every look, each family a menu under that one, each choice telling {@code chosen} the name to remember. */
+  public static Actions actions(String menu, Consumer<String> chosen) {
+    return () -> all().stream().<Action>map(laf -> new Action() {
+      public String path() {
+        return menu + "/" + laf.family + "/" + laf.name;
+      }
+
+      public void run() {
+        tryOn(laf, chosen);
+      }
+    }).toList();
   }
 
   /** Wears a look and asks whether to keep it, going back on its own if nobody says yes. */
