@@ -27,6 +27,14 @@
             <groupId>dev.crystal.plugins</groupId>
             <artifactId>framework-runtime</artifactId>
         </dependency>
+        <!-- What draws the SVG icons. It travels inside this jar, relocated: a plugin that carries its own jsvg, in
+             another version (darklaf does), would otherwise be given this one, since crystal hands a plugin the
+             application's copy of a library the application already has. -->
+        <dependency>
+            <groupId>com.github.weisj</groupId>
+            <artifactId>jsvg</artifactId>
+            <version>2.0.0</version>
+        </dependency>
         <!-- Crystal's own panel for the plugins: what the plugins window shows. -->
         <dependency>
             <groupId>dev.crystal.plugins</groupId>
@@ -44,4 +52,46 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.github.weisj:jsvg</include>
+                                </includes>
+                            </artifactSet>
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.github.weisj.jsvg</pattern>
+                                    <shadedPattern>dev.plugdesk.desk.internal.jsvg</shadedPattern>
+                                </relocation>
+                            </relocations>
+                            <filters>
+                                <filter>
+                                    <artifact>com.github.weisj:jsvg</artifact>
+                                    <excludes>
+                                        <exclude>module-info.class</exclude>
+                                        <exclude>META-INF/MANIFEST.MF</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
+                            <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
