@@ -3,6 +3,7 @@ package dev.plugdesk.desk;
 import javax.swing.JComponent;
 import java.awt.Rectangle;
 import java.util.List;
+import java.util.Map;
 
 /** How the windows of a desk are arranged. */
 public interface Layout {
@@ -23,4 +24,13 @@ public interface Layout {
   Rectangle placeOf(JComponent window);
 
   void place(JComponent window, Rectangle place);
+
+  /** How it is arranged, to keep from one run to the next: nothing for a layout where each window has its place. */
+  default Map<String, String> arrangement() {
+    return Map.of();
+  }
+
+  /** Arranged again as it was kept. */
+  default void arrange(Map<String, String> kept) {
+  }
 }

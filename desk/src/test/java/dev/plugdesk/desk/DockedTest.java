@@ -98,6 +98,18 @@ class DockedTest {
     });
   }
 
+  /** A side with one window shows it without a row of one tab, where the look can; two are two tabs again. */
+  @Test
+  void aSideWithOneWindowShowsNoTabs() throws Exception {
+    SwingUtilities.invokeAndWait(() -> {
+      Docked docked = new Docked();
+      Workbench desk = new Workbench(docked, IDE, List.of());
+      javax.swing.JTabbedPane left = (javax.swing.JTabbedPane) desk.window("View/Project").getParent();
+
+      assertEquals(Boolean.TRUE, left.getClientProperty(Docked.ONE_WINDOW_NO_TABS));
+    });
+  }
+
   /** Where every divider under that one is drawn, outermost first. */
   private static List<Integer> where(java.awt.Component component) {
     List<Integer> at = new java.util.ArrayList<>();

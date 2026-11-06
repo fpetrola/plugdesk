@@ -128,7 +128,7 @@ class WorkbenchTest {
 
       desk.say("indexing 40%");
 
-      assertEquals("indexing 40%", ((JLabel) ((JComponent) desk.getComponent(2)).getComponent(0)).getText());
+      assertEquals("indexing 40%", desk.said());
     });
   }
 
@@ -143,6 +143,21 @@ class WorkbenchTest {
             "its own, the application's found as a plugin's would be, and the plugins window under Tools");
       });
     }
+  }
+
+  /** What the application shows beside the status line, such as where the caret is, goes at its right end; what it says stays. */
+  @Test
+  void besideTheStatusLine() throws Exception {
+    onTheEventThread(() -> {
+      Workbench desk = new Workbench(new Mdi(), List.of(), List.of());
+      javax.swing.JLabel caret = new javax.swing.JLabel("3:14");
+      desk.say("indexing");
+
+      desk.besideStatus(caret);
+
+      assertTrue(SwingUtilities.isDescendingFrom(caret, desk), "on the desk");
+      assertEquals("indexing", desk.said());
+    });
   }
 
   /** Each item of the bar with the menus it is in, outermost first. */

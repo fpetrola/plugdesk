@@ -22,4 +22,20 @@ class WidgetsTest {
   void anIconThatIsNotThereSaysWhich() {
     assertEquals("no icon nowhere.svg", assertThrows(IllegalArgumentException.class, () -> Widgets.loadIcon("nowhere.svg")).getMessage());
   }
+
+  /** A menu longer than the application says fits (menu-items; 18 when it says nothing) shows that many and two arrows. */
+  @Test
+  void aMenuScrollsOnlyWhenLongerThanWhatFits() {
+    assertEquals(18, menuOf(18).getComponentCount(), "all of it");
+    javax.swing.JPopupMenu scrolling = menuOf(19);
+    assertEquals(20, scrolling.getComponentCount(), "18 and the arrows");
+    assertEquals("\u25B2", ((javax.swing.JMenuItem) scrolling.getComponent(0)).getText());
+  }
+
+  private static javax.swing.JPopupMenu menuOf(int items) {
+    javax.swing.JPopupMenu menu = new javax.swing.JPopupMenu();
+    for (int i = 0; i < items; i++) menu.add(new javax.swing.JMenuItem("item " + i));
+    Widgets.scrollingWhenLong(menu);
+    return menu;
+  }
 }

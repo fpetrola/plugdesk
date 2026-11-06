@@ -32,12 +32,30 @@ public final class DeskWindow {
       @Override
       public void windowClosing(WindowEvent e) {
         DeskConfiguration.kept().place(frame.getBounds());
+        if (frame.getContentPane() instanceof Workbench workbench) DeskConfiguration.kept().keep(workbench.arrangement());
         keeping.run();
         Configuration.shared().save();
       }
     });
     frame.setVisible(true);
+    if (desk instanceof Workbench workbench) arranged(frame, workbench);
     return frame;
+  }
+
+  /**
+   * Puts a desk in a window that had something else, such as what it said while the desk was being made: with its
+   * menus, and its layout arranged as it was kept.
+   */
+  public static void put(JFrame frame, Workbench desk) {
+    frame.setJMenuBar(desk.menus());
+    frame.setContentPane(desk);
+    arranged(frame, desk);
+  }
+
+  /** Arranged once the window has given the desk its size: a divider put before that would move again. */
+  private static void arranged(JFrame frame, Workbench desk) {
+    frame.validate();
+    DeskConfiguration.kept().arrange(desk.arrangement());
   }
 
   /**

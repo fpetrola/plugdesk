@@ -316,7 +316,11 @@ public class Widgets {
   }
 
   /** Cuantos items muestra un menu largo a la vez. */
-  private static final int ITEMS_AT_ONCE = 18;
+  /** How many items a menu shows before it scrolls: what the application says ({@code menu-items}), else 18. */
+  static int itemsAtOnce() {
+    String said = dev.plugdesk.app.Application.it().said("menu-items");
+    return said == null ? 18 : Integer.parseInt(said.trim());
+  }
 
   /**
    * Un menu con mas de lo que entra deja de llenar la pantalla: muestra unos cuantos items y dos
@@ -332,7 +336,8 @@ public class Widgets {
   public static void scrollingWhenLong(javax.swing.JPopupMenu menu, int fixedOnTop) {
     java.awt.Component[] fixed = java.util.Arrays.copyOf(menu.getComponents(), fixedOnTop);
     java.awt.Component[] all = java.util.Arrays.copyOfRange(menu.getComponents(), fixedOnTop, menu.getComponentCount());
-    if (all.length <= ITEMS_AT_ONCE) return;
+    int atOnce = itemsAtOnce();
+    if (all.length <= atOnce) return;
     int[] first = {0};
     javax.swing.JMenuItem up = new javax.swing.JMenuItem("\u25B2");
     javax.swing.JMenuItem down = new javax.swing.JMenuItem("\u25BC");
@@ -344,10 +349,10 @@ public class Widgets {
       menu.removeAll();
       for (java.awt.Component kept : fixed) menu.add(kept);
       menu.add(up);
-      for (int i = first[0]; i < Math.min(all.length, first[0] + ITEMS_AT_ONCE); i++) menu.add(all[i]);
+      for (int i = first[0]; i < Math.min(all.length, first[0] + atOnce); i++) menu.add(all[i]);
       menu.add(down);
       up.setEnabled(first[0] > 0);
-      down.setEnabled(first[0] + ITEMS_AT_ONCE < all.length);
+      down.setEnabled(first[0] + atOnce < all.length);
       menu.setPreferredSize(null);
       menu.setPreferredSize(new java.awt.Dimension(widest, menu.getPreferredSize().height));
       menu.pack();
@@ -355,7 +360,7 @@ public class Widgets {
       menu.repaint();
     };
     java.util.function.IntConsumer move = step -> {
-      int moved = Math.max(0, Math.min(all.length - ITEMS_AT_ONCE, first[0] + step));
+      int moved = Math.max(0, Math.min(all.length - atOnce, first[0] + step));
       if (moved != first[0]) {
         first[0] = moved;
         show.run();

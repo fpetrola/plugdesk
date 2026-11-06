@@ -18,6 +18,9 @@ import java.util.Map;
  */
 public class Docked implements Layout {
 
+  /** A side with one window shows that window alone, without a row of one tab: the looks that can, FlatLaf's, do. */
+  static final String ONE_WINDOW_NO_TABS = "JTabbedPane.hideTabAreaWithOneTab";
+
   private final Map<Window.Side, JTabbedPane> sides = new EnumMap<>(Window.Side.class);
   private final JSplitPane middle;
   private final JSplitPane withRight;
@@ -28,6 +31,7 @@ public class Docked implements Layout {
     for (Window.Side side : List.of(Window.Side.LEFT, Window.Side.CENTER, Window.Side.BOTTOM, Window.Side.RIGHT)) {
       JTabbedPane tabs = new JTabbedPane();
       tabs.setMinimumSize(new Dimension(0, 0));
+      tabs.putClientProperty(ONE_WINDOW_NO_TABS, true);
       sides.put(side, tabs);
     }
     middle = new JSplitPane(JSplitPane.VERTICAL_SPLIT, sides.get(Window.Side.CENTER), sides.get(Window.Side.BOTTOM));
@@ -106,11 +110,13 @@ public class Docked implements Layout {
   }
 
   /** Where the dividers are, to keep; as they were before maximizing when the views are maximized. */
+  @Override
   public Map<String, String> arrangement() {
     int[] at = beforeMaximizing != null ? beforeMaximizing : dividers();
     return Map.of(DIVIDERS, Arrays.toString(at).replaceAll("[\\[\\] ]", ""));
   }
 
+  @Override
   public void arrange(Map<String, String> kept) {
     if (kept.containsKey(DIVIDERS)) dividers(Arrays.stream(kept.get(DIVIDERS).split(",")).mapToInt(Integer::parseInt).toArray());
   }

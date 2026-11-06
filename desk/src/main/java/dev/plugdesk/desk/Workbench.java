@@ -38,6 +38,7 @@ public class Workbench extends JPanel implements Desk {
   private final JPanel south = new JPanel(new java.awt.GridLayout(0, 1));
   private final JMenuBar menus = new JMenuBar();
   private final JLabel status = new JLabel(" ");
+  private final JPanel beside = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 16, 0));
   private static Workbench current;
   private final Map<String, JComponent> open = new HashMap<>();
   private static final String PLACE = "place";
@@ -53,7 +54,12 @@ public class Workbench extends JPanel implements Desk {
     this.lists = lists;
     this.parts = parts;
     current = this;
-    south.add(status);
+    JPanel statusLine = new JPanel(new BorderLayout(16, 0));
+    statusLine.setBorder(javax.swing.BorderFactory.createEmptyBorder(3, 10, 3, 10));
+    statusLine.add(status, BorderLayout.CENTER);
+    beside.setOpaque(false);
+    statusLine.add(beside, BorderLayout.LINE_END);
+    south.add(statusLine);
     add(north, BorderLayout.NORTH);
     add(layout.area(), BorderLayout.CENTER);
     add(south, BorderLayout.SOUTH);
@@ -145,6 +151,17 @@ public class Workbench extends JPanel implements Desk {
   @Override
   public void say(String text) {
     status.setText(text);
+  }
+
+  /** What the status line says now. */
+  public String said() {
+    return status.getText();
+  }
+
+  /** Something the application shows at the right end of the status line, such as where the caret is, in the order given. */
+  public void besideStatus(JComponent shown) {
+    beside.add(shown);
+    beside.revalidate();
   }
 
   @Override
