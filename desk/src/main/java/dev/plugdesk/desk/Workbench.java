@@ -71,6 +71,11 @@ public class Workbench extends JPanel implements Desk {
    * that brings plugins itself, under Tools: without it a desk with nothing on it would have no way to grow.
    */
   public static Workbench of(PluginService plugins, Layout layout, Actions... own) {
+    return of(plugins, layout, List.of(), own);
+  }
+
+  /** The same, with parts of the application's own beside those the plugins bring, first. */
+  public static Workbench of(PluginService plugins, Layout layout, Collection<Part> ownParts, Actions... own) {
     List<Actions> mine = new java.util.ArrayList<>(List.of(own));
     mine.add(() -> List.of(new PluginsWindow("Tools/Plugins...", Widgets.icon(
         dev.crystal.plugins.swing.PluginIcons.class.getResource("icons/1F9E9.svg"), Widgets.TOOLBAR_ICON_SIZE))));
@@ -83,9 +88,22 @@ public class Workbench extends JPanel implements Desk {
       public int size() {
         return mine.size() + theirs.size();
       }
-    }, plugins.roles(Part.class));
+    }, parts(ownParts, plugins.roles(Part.class)));
     plugins.onChange(() -> SwingUtilities.invokeLater(desk::changed));
     return desk;
+  }
+
+  /** The application's parts, then the plugins' as they come and go. */
+  private static Collection<Part> parts(Collection<Part> own, Collection<Part> theirs) {
+    return new java.util.AbstractCollection<>() {
+      public java.util.Iterator<Part> iterator() {
+        return Stream.concat(own.stream(), theirs.stream()).iterator();
+      }
+
+      public int size() {
+        return own.size() + theirs.size();
+      }
+    };
   }
 
   /** The desk on the screen, for a plugin's action that works on it: the last one made. */

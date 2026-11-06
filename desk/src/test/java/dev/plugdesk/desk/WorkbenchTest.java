@@ -145,6 +145,30 @@ class WorkbenchTest {
     }
   }
 
+  /** The application may put parts of its own on a desk of plugins too, such as a bar of its own: they go first. */
+  @Test
+  void aDeskOfPluginsTakesTheApplicationsOwnParts() throws Exception {
+    try (PluginService plugins = PluginService.builder().build()) {
+      plugins.start();
+      onTheEventThread(() -> {
+        javax.swing.JLabel bar = new javax.swing.JLabel("run");
+        Part own = new Part() {
+          public String side() {
+            return java.awt.BorderLayout.NORTH;
+          }
+
+          public JComponent make(Workbench desk) {
+            return bar;
+          }
+        };
+
+        Workbench desk = Workbench.of(plugins, new Mdi(), List.of(own));
+
+        assertTrue(SwingUtilities.isDescendingFrom(bar, desk), "on the desk");
+      });
+    }
+  }
+
   /** What the application shows beside the status line, such as where the caret is, goes at its right end; what it says stays. */
   @Test
   void besideTheStatusLine() throws Exception {
