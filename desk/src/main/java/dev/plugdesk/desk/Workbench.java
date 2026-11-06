@@ -34,7 +34,10 @@ public class Workbench extends JPanel implements Desk {
   private final Collection<Actions> lists;
   private final Collection<Part> parts;
   private final Map<Part, JComponent> made = new java.util.LinkedHashMap<>();
-  private final JPanel north = new JPanel(new java.awt.GridLayout(0, 1));
+  private final JPanel north = new JPanel(new BorderLayout());
+  /** The rows under the menus, and at the right end of the first of them, what goes there. */
+  private final JPanel rows = new JPanel(new java.awt.GridLayout(0, 1));
+  private final JPanel end = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 0, 0));
   private final JPanel south = new JPanel(new java.awt.GridLayout(0, 1));
   private final JMenuBar menus = new JMenuBar();
   private final JLabel status = new JLabel(" ");
@@ -60,6 +63,10 @@ public class Workbench extends JPanel implements Desk {
     beside.setOpaque(false);
     statusLine.add(beside, BorderLayout.LINE_END);
     south.add(statusLine);
+    JPanel first = new JPanel(new BorderLayout());
+    first.add(rows, BorderLayout.CENTER);
+    first.add(end, BorderLayout.LINE_END);
+    north.add(first, BorderLayout.NORTH);
     add(north, BorderLayout.NORTH);
     add(layout.area(), BorderLayout.CENTER);
     add(south, BorderLayout.SOUTH);
@@ -268,7 +275,8 @@ public class Workbench extends JPanel implements Desk {
   private void parts() {
     for (Part gone : List.copyOf(made.keySet()))
       if (!parts.contains(gone)) {
-        north.remove(made.get(gone));
+        rows.remove(made.get(gone));
+        end.remove(made.get(gone));
         south.remove(made.get(gone));
         made.remove(gone);
       }
@@ -276,7 +284,8 @@ public class Workbench extends JPanel implements Desk {
       JComponent component = made.computeIfAbsent(part, one -> {
         JComponent made = one.make(this);
         if (BorderLayout.SOUTH.equals(one.side())) south.add(made, 0);
-        else north.add(made);
+        else if (BorderLayout.LINE_END.equals(one.side())) end.add(made);
+        else rows.add(made);
         return made;
       });
       part.changed(this, component);

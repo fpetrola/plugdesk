@@ -14,7 +14,8 @@ import java.util.Map;
 /**
  * Windows docked at the sides of the desk, the way IDEs have them: one in the middle, and on the left, on the right and
  * below, each side a row of tabs. Every divider folds with a click; the views below can take the whole desk and give
- * it back. A docked window has no place of its own: what is kept is where the dividers are.
+ * it back. A docked window has no place of its own: what is kept is where the dividers are. A window that prefers no
+ * side floats in a window of its own over the desk, as an IDE's dialogs do, and is not kept.
  */
 public class Docked implements Layout {
 
@@ -26,6 +27,8 @@ public class Docked implements Layout {
   private final JSplitPane withRight;
   private final JSplitPane main;
   private int[] beforeMaximizing;
+  /** The windows that float, each with what holds it on the screen: none where there is no screen. */
+  private final Map<JComponent, java.util.Optional<javax.swing.JDialog>> floating = new java.util.LinkedHashMap<>();
 
   public Docked() {
     for (Window.Side side : List.of(Window.Side.LEFT, Window.Side.CENTER, Window.Side.BOTTOM, Window.Side.RIGHT)) {
@@ -53,7 +56,11 @@ public class Docked implements Layout {
 
   @Override
   public void show(String title, JComponent window, Window.Side prefers) {
-    JTabbedPane tabs = sides.get(prefers == Window.Side.FREE ? Window.Side.CENTER : prefers);
+    if (prefers == Window.Side.FREE) {
+      floating(title, window);
+      return;
+    }
+    JTabbedPane tabs = sides.get(prefers);
     if (tabs.indexOfComponent(window) < 0) {
       window.setMinimumSize(new Dimension(0, 0));
       tabs.addTab(title, window);
@@ -86,8 +93,57 @@ public class Docked implements Layout {
   public void place(JComponent window, Rectangle place) {
   }
 
-  /** The side a window is docked at, or null when it is not on the desk. */
+  /**
+   * In a window of its own over the desk's, the one already there brought to the front; closed, it is gone, and shown
+   * again it is made again. An internal frame lends it its title, size and what it is made of, and is told when it is
+   * activated, as on a desk of internal frames.
+   */
+  private void floating(String title, JComponent window) {
+    java.util.Optional<javax.swing.JDialog> shown = floating.get(window);
+    if (shown == null) {
+      shown = java.awt.GraphicsEnvironment.isHeadless() ? java.util.Optional.empty() : java.util.Optional.of(dialog(title, window));
+      floating.put(window, shown);
+    }
+    shown.ifPresent(dialog -> {
+      dialog.setVisible(true);
+      dialog.toFront();
+    });
+  }
+
+  private javax.swing.JDialog dialog(String title, JComponent window) {
+    javax.swing.JDialog dialog = new javax.swing.JDialog(javax.swing.SwingUtilities.getWindowAncestor(main), title,
+        java.awt.Dialog.ModalityType.MODELESS);
+    dialog.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+    if (window instanceof javax.swing.JInternalFrame frame) {
+      dialog.setTitle(frame.getTitle());
+      dialog.setContentPane(frame.getContentPane());
+      dialog.setSize(frame.getSize());
+      dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+        @Override
+        public void windowActivated(java.awt.event.WindowEvent event) {
+          javax.swing.event.InternalFrameEvent activated =
+              new javax.swing.event.InternalFrameEvent(frame, javax.swing.event.InternalFrameEvent.INTERNAL_FRAME_ACTIVATED);
+          for (javax.swing.event.InternalFrameListener listener : frame.getInternalFrameListeners())
+            listener.internalFrameActivated(activated);
+        }
+      });
+    } else {
+      dialog.add(window);
+      dialog.pack();
+    }
+    dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+      @Override
+      public void windowClosed(java.awt.event.WindowEvent event) {
+        floating.remove(window);
+      }
+    });
+    dialog.setLocationRelativeTo(main);
+    return dialog;
+  }
+
+  /** The side a window is docked at, FREE when it floats, or null when it is not on the desk. */
   public Window.Side sideOf(JComponent window) {
+    if (floating.containsKey(window)) return Window.Side.FREE;
     return sides.entrySet().stream().filter(side -> side.getValue().indexOfComponent(window) >= 0)
         .map(Map.Entry::getKey).findFirst().orElse(null);
   }

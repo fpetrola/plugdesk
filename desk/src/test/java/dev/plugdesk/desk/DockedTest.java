@@ -34,11 +34,13 @@ class DockedTest {
       IDE.forEach(view -> desk.window(view.path()));
 
       assertEquals(List.of(Window.Side.LEFT, Window.Side.CENTER, Window.Side.BOTTOM, Window.Side.BOTTOM, Window.Side.RIGHT,
-          Window.Side.CENTER), IDE.stream().map(view -> docked.sideOf(desk.window(view.path()))).toList(),
-          "and a free window goes in the middle");
+          Window.Side.FREE), IDE.stream().map(view -> docked.sideOf(desk.window(view.path()))).toList(),
+          "and a free window floats, in no row of tabs");
+      assertEquals(null, desk.window("View/Loose").getParent(), "in a window of its own, none where there is no screen");
+      assertSame(desk.window("View/Loose"), desk.window("View/Loose"), "shown again, the same window");
       JComponent problems = desk.window("View/Problems");
       assertSame(problems, desk.window("View/Problems"), "shown again, the same tab");
-      assertEquals(6, docked.backToFront().size());
+      assertEquals(5, docked.backToFront().size(), "a window that floats is not kept");
     });
   }
 

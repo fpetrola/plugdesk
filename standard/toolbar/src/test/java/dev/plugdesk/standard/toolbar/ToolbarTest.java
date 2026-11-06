@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ToolbarTest {
 
@@ -31,7 +32,7 @@ class ToolbarTest {
       Toolbar toolbar = new Toolbar();
       Workbench desk = new Workbench(new Mdi(), List.of(new Offering("A/With an icon", DOT, null),
           new Offering("A/Without", null, null), new Offering("Discover/Map", DOT, "tool-map")), List.of(), List.of(toolbar));
-      JComponent bar = (JComponent) ((JComponent) desk.getComponent(0)).getComponent(0);
+      JComponent bar = bar(desk);
 
       assertEquals(List.of("With an icon", "More that can be had: choosing one brings its plugin"),
           Stream.of(bar.getComponents()).map(button -> ((JButton) button).getToolTipText()).toList());
@@ -43,13 +44,21 @@ class ToolbarTest {
     SwingUtilities.invokeAndWait(() -> {
       java.util.Set<dev.plugdesk.desk.Part> parts = new java.util.HashSet<>(List.of(new Toolbar()));
       Workbench desk = new Workbench(new Mdi(), List.of(new Offering("A/B", DOT, null)), List.of(), parts);
-      JComponent north = (JComponent) desk.getComponent(0);
-      assertEquals(1, north.getComponentCount());
+      assertTrue(bar(desk) != null, "on the desk");
 
       parts.clear();
       desk.changed();
 
-      assertEquals(0, north.getComponentCount());
+      assertEquals(null, bar(desk));
     });
+  }
+
+  /** The bar on the desk, wherever the desk puts it; none if it is not there. */
+  private static JComponent bar(java.awt.Container on) {
+    for (java.awt.Component inside : on.getComponents()) {
+      if (inside instanceof javax.swing.JToolBar bar) return bar;
+      if (inside instanceof java.awt.Container container && bar(container) != null) return bar(container);
+    }
+    return null;
   }
 }

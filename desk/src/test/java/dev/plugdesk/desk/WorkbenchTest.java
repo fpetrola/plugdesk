@@ -169,6 +169,40 @@ class WorkbenchTest {
     }
   }
 
+  /** A part at the line's end goes at the right of the first row under the menus, on the row of the bar there. */
+  @Test
+  void aPartAtTheLinesEndSharesTheFirstRow() throws Exception {
+    onTheEventThread(() -> {
+      javax.swing.JLabel bar = new javax.swing.JLabel("bar"), run = new javax.swing.JLabel("run");
+      Workbench desk = new Workbench(new Mdi(), List.of(), List.of(), List.of(part(java.awt.BorderLayout.NORTH, bar),
+          part(java.awt.BorderLayout.LINE_END, run)));
+      desk.setSize(800, 600);
+      layOut(desk);
+
+      java.awt.Point barAt = SwingUtilities.convertPoint(bar, 0, 0, desk), runAt = SwingUtilities.convertPoint(run, 0, 0, desk);
+      assertEquals(barAt.y, runAt.y, "on the same row");
+      assertTrue(runAt.x > 800 / 2 && barAt.x < 800 / 2, "the bar at the left, the other at the right: " + barAt + " " + runAt);
+    });
+  }
+
+  private static Part part(String side, JComponent made) {
+    return new Part() {
+      public String side() {
+        return side;
+      }
+
+      public JComponent make(Workbench desk) {
+        return made;
+      }
+    };
+  }
+
+  private static void layOut(java.awt.Container container) {
+    container.doLayout();
+    for (java.awt.Component part : container.getComponents())
+      if (part instanceof java.awt.Container inside) layOut(inside);
+  }
+
   /** What the application shows beside the status line, such as where the caret is, goes at its right end; what it says stays. */
   @Test
   void besideTheStatusLine() throws Exception {
