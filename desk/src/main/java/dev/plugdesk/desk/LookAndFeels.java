@@ -120,8 +120,17 @@ public final class LookAndFeels {
     });
   }
 
-  /** Every look, each family a menu under that one, each choice telling {@code chosen} the name to remember. */
-  public static Actions actions(String menu, Consumer<String> chosen) {
+  /** Wears the look kept from the last run, or the application's the first time. */
+  public static void wearTheKept() {
+    install(DeskConfiguration.kept().look);
+  }
+
+  /** Every look, each family a menu under that one; the one chosen and kept is the one worn next time. */
+  public static Actions actions(String menu) {
+    Consumer<String> chosen = name -> {
+      DeskConfiguration.kept().look = name;
+      dev.plugdesk.app.Configuration.shared().save();
+    };
     return () -> all().stream().<Action>map(laf -> new Action() {
       public String path() {
         return menu + "/" + laf.family + "/" + laf.name;

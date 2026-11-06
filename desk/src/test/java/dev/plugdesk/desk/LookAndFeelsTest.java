@@ -17,7 +17,7 @@ class LookAndFeelsTest {
 
   @Test
   void everyLookIsAnActionUnderItsFamily() {
-    List<String> paths = LookAndFeels.actions("Window/Look", chosen -> { }).actions().stream().map(Action::path).toList();
+    List<String> paths = LookAndFeels.actions("Window/Look").actions().stream().map(Action::path).toList();
 
     assertEquals(List.of("Window/Look/Painted/One", "Window/Look/Painted/Two", "Window/Look/System/Metal",
         "Window/Look/System/Nimbus", "Window/Look/System/Native"), paths);

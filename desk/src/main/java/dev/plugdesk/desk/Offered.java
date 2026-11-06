@@ -28,7 +28,7 @@ public final class Offered implements Actions {
 
   /** @param done what to do once the plugin is in: the thing that was chosen, which only the application knows how */
   public Offered(Map<Class<?>, String> where, String everything, Consumer<Offer> done) {
-    this(where, everything, done, () -> Plugins.managing().availableOffering(), Plugins::add);
+    this(where, everything, done, () -> Plugins.areRead() ? Plugins.managing().availableOffering() : Map.of(), Plugins::add);
   }
 
   Offered(Map<Class<?>, String> where, String everything, Consumer<Offer> done,
