@@ -93,7 +93,7 @@ public class Workbench extends JPanel implements Desk {
       Map<String, String> kept = new java.util.TreeMap<>(inside(window));
       if (kept.isEmpty()) return kept;
       Rectangle place = layout.placeOf(window);
-      kept.put(PLACE, place.x + "," + place.y + "," + place.width + "," + place.height);
+      if (place != null) kept.put(PLACE, place.x + "," + place.y + "," + place.width + "," + place.height);
       return kept;
     }).filter(kept -> !kept.isEmpty()).toList();
   }

@@ -19,7 +19,7 @@ public interface Layout {
   /** What is on the screen, from the back to the front. */
   List<JComponent> backToFront();
 
-  /** Where it is, as it would be neither maximised nor minimised. */
+  /** Where it is, as it would be neither maximised nor minimised; null where windows have no place of their own. */
   Rectangle placeOf(JComponent window);
 
   void place(JComponent window, Rectangle place);
