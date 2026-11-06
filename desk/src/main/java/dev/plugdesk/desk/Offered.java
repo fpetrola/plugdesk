@@ -40,7 +40,10 @@ public final class Offered implements Actions {
     this.bring = bring;
   }
 
-  /** Asks the catalogue again, and once it answers runs {@code arrived} on the window's thread. */
+  /**
+   * Asks the catalogue again, and once it answers runs {@code arrived} on the window's thread: only when what it offers
+   * changed, since what follows is usually making the menus again.
+   */
   public void look(Runnable arrived) {
     new SwingWorker<Map<PluginArtifact, List<Offer>>, Void>() {
       protected Map<PluginArtifact, List<Offer>> doInBackground() {
@@ -48,11 +51,14 @@ public final class Offered implements Actions {
       }
 
       protected void done() {
+        Map<PluginArtifact, List<Offer>> answered;
         try {
-          known = get();
+          answered = get();
         } catch (Exception cannotAsk) {
           return;
         }
+        if (answered.equals(known)) return;
+        known = answered;
         arrived.run();
       }
     }.execute();

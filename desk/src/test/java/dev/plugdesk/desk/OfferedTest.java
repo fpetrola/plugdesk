@@ -54,6 +54,27 @@ class OfferedTest {
     assertEquals(List.of("brought device-mouse", "done Kempston Mouse"), happened);
   }
 
+  /** The catalogue answering what it said before is no news: whoever waits for it is told only of a change. */
+  @Test
+  void onlyAChangeInWhatIsOfferedIsTold() throws Exception {
+    List<Map<PluginArtifact, List<Offer>>> answers = new ArrayList<>(List.of(Map.of(), Map.of(MOUSE, List.of(POINTING)),
+        Map.of(MOUSE, List.of(POINTING))));
+    Offered offered = new Offered(Map.of(), "Discover", offer -> { }, () -> answers.removeFirst(), id -> { });
+    List<String> told = new ArrayList<>();
+
+    for (int i = 0; i < 3; i++) {
+      SwingUtilities.invokeAndWait(() -> offered.look(() -> told.add("told")));
+      waitForTheAnswer(); // the worker asks, then tells on the window's thread
+    }
+
+    assertEquals(List.of("told"), told, "nothing at first, then the mouse once");
+  }
+
+  private static void waitForTheAnswer() throws Exception {
+    Thread.sleep(200);
+    SwingUtilities.invokeAndWait(() -> { });
+  }
+
   private static void arrived(Offered offered) throws Exception {
     CountDownLatch answered = new CountDownLatch(1);
     SwingUtilities.invokeAndWait(() -> offered.look(answered::countDown));
