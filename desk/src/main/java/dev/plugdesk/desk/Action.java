@@ -27,6 +27,11 @@ public interface Action {
     return path().substring(path().lastIndexOf('/') + 1);
   }
 
+  /** What it does, in a few words, for whoever looks for it by what it does; null when its name says it. */
+  default String description() {
+    return null;
+  }
+
   /** The keys that do it; the first is the one a menu shows. */
   default List<KeyStroke> keys() {
     return List.of();

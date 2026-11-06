@@ -30,7 +30,8 @@ public final class Palette extends JPanel {
   private record Row(Action action) {
     @Override
     public String toString() {
-      return action.needs() == null ? action.text() : action.text() + "   \u2014   needs " + action.needs();
+      String said = action.description() == null ? action.text() : action.text() + ": " + action.description();
+      return action.needs() == null ? said : said + "   \u2014   needs " + action.needs();
     }
   }
 
