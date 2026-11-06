@@ -162,10 +162,11 @@ public final class Plugins {
     }
     if (service == null) {
       servingFolder = folder();
+      Defaults defaults = new Defaults(Plugins.class.getClassLoader());
       service = PluginService.builder()
           .cacheDirectory(Configuration.home().toPath().resolve("plugin-cache"))
           .source(new WhereAPluginComesFrom())
-          .defaults(dev.crystal.plugins.runtime.PluginSources.bundled())
+          .defaults(defaults)
           .build();
       service.onChange(Plugins::forgetWhatClosedLoadersLeft);
       service.whenHeld(leaving -> {
@@ -178,6 +179,7 @@ public final class Plugins {
         beforeTakingOut.forEach(listener -> listener.accept(id));
       });
       service.start();
+      defaults.offerTheNew(service);
       // Arrancar pone lo que el jar trae y lo que ya estaba puesto, sin red: los plugins viajan
       // adentro. Lo que hay en la carpeta es una eleccion que alguien ya hizo, y tambien entra.
       whatIsInTheFolder();
@@ -349,6 +351,19 @@ public final class Plugins {
 
 
 
+
+  /** What answers to that role, asked again each time it is walked: what arrives is there, what leaves is not. */
+  public static <S> java.util.Collection<S> live(Class<S> role) {
+    return new java.util.AbstractCollection<>() {
+      public java.util.Iterator<S> iterator() {
+        return found(role).iterator();
+      }
+
+      public int size() {
+        return found(role).size();
+      }
+    };
+  }
 
   /**
    * Lo que responde a esa forma de entrar: lo que el build trae adentro y lo que trajeron los

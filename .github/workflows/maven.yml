@@ -28,4 +28,6 @@ jobs:
       run: mvn -B -U -DskipTests install -f crystal-plugins/pom.xml
 
     - name: Build and test
-      run: mvn -B -U verify -Djava.awt.headless=true
+      # install and not verify: the standard plugins are bundled from the local repository, so they are installed
+      # before the jar that carries them is made.
+      run: mvn -B -U install -Djava.awt.headless=true

@@ -1,4 +1,6 @@
-package dev.plugdesk.desk;
+package dev.plugdesk.standard.suggestions;
+
+import dev.plugdesk.desk.*;
 
 import org.junit.jupiter.api.Test;
 

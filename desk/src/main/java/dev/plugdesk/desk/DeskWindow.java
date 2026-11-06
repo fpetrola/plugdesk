@@ -40,6 +40,17 @@ public final class DeskWindow {
     return frame;
   }
 
+  /**
+   * An application whose desk is what its plugins bring: the plugins of its home started, a desk of what they and the
+   * application offer, in its window. Everything else, menus included, arrives as plugins.
+   */
+  public static void start(String title, Layout layout, Actions... own) {
+    SwingUtilities.invokeLater(() -> {
+      Workbench desk = Workbench.of(dev.plugdesk.app.Plugins.managing(), layout, own);
+      open(title, desk, desk.menus(), () -> { });
+    });
+  }
+
   /** Closes the window that has this in it, the same as its close button does. */
   public static void close(Component inside) {
     java.awt.Window window = SwingUtilities.getWindowAncestor(inside);

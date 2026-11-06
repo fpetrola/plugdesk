@@ -3,7 +3,6 @@ package dev.plugdesk.desk;
 import javax.swing.JComponent;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.KeyStroke;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -104,23 +103,6 @@ public class Docked implements Layout {
 
   public boolean viewsMaximized() {
     return beforeMaximizing != null;
-  }
-
-  /** Maximize Views, under that menu. */
-  public List<Action> actions(String menu) {
-    return List.of(new Action() {
-      public String path() {
-        return menu + "/Maximize Views";
-      }
-
-      public List<KeyStroke> keys() {
-        return List.of(KeyStroke.getKeyStroke("ctrl shift QUOTE"));
-      }
-
-      public void run() {
-        maximizeViews();
-      }
-    });
   }
 
   /** Where the dividers are, to keep; as they were before maximizing when the views are maximized. */

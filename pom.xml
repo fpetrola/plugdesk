@@ -15,6 +15,7 @@
     <modules>
         <module>app</module>
         <module>desk</module>
+        <module>standard</module>
     </modules>
 
     <properties>
@@ -51,6 +52,11 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.crystal.plugins</groupId>
+                <artifactId>framework-swing</artifactId>
+                <version>${crystal.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>

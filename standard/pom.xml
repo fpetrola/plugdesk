@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>dev.plugdesk</groupId>
+        <artifactId>plugdesk-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>dev.plugdesk.standard</groupId>
+    <artifactId>standard</artifactId>
+    <packaging>pom</packaging>
+    <name>Plugdesk :: Standard plugins</name>
+    <description>What most applications want on their desk, each a plugin of its own: it comes with the application and can be taken out.</description>
+
+    <modules>
+        <module>looks</module>
+        <module>suggestions</module>
+        <module>windows</module>
+        <module>docks</module>
+        <module>toolbar</module>
+        <module>help</module>
+        <module>bundle</module>
+    </modules>
+
+    <dependencies>
+        <!-- The base the plugins plug into: the application has it. Without the plugin loader under it: on what a
+             plugin is compiled with, PF4J's processor would write the index of the extensions over crystal's. -->
+        <dependency>
+            <groupId>dev.plugdesk</groupId>
+            <artifactId>plugdesk-desk</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion><groupId>dev.crystal.plugins</groupId><artifactId>framework-runtime</artifactId></exclusion>
+                <exclusion><groupId>dev.crystal.plugins</groupId><artifactId>framework-guice</artifactId></exclusion>
+                <exclusion><groupId>dev.crystal.plugins</groupId><artifactId>framework-swing</artifactId></exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>dev.crystal.plugins</groupId>
+            <artifactId>framework-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- The tests build a real desk, which needs what loads plugins. -->
+        <dependency>
+            <groupId>dev.crystal.plugins</groupId>
+            <artifactId>framework-swing</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>dev.crystal.plugins</groupId>
+                <artifactId>framework-maven-plugin</artifactId>
+                <version>${crystal.version}</version>
+                <extensions>true</extensions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

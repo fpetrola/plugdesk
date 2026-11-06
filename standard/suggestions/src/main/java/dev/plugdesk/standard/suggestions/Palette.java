@@ -1,4 +1,7 @@
-package dev.plugdesk.desk;
+package dev.plugdesk.standard.suggestions;
+
+import dev.plugdesk.desk.Action;
+import dev.plugdesk.desk.Workbench;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;

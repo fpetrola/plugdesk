@@ -1,4 +1,6 @@
-package dev.plugdesk.desk;
+package dev.plugdesk.standard.looks;
+
+import dev.plugdesk.desk.*;
 
 import java.util.ArrayList;
 import java.util.List;

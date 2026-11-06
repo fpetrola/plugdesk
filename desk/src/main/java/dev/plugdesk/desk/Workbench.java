@@ -11,7 +11,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JToolBar;
 import javax.swing.MenuElement;
 import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
@@ -25,37 +24,72 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 /**
- * The desk: a menu bar, a bar of buttons, the windows and a status line, all made of what is offered. It names no
- * menu and no window; an application is what it offers, the same way a plugin is.
+ * The desk: a menu bar, the windows, a status line, and whatever parts the plugins put beside them, all made of what is
+ * offered. It names no menu and no window; an application is what it offers, the same way a plugin is.
  */
 public class Workbench extends JPanel implements Desk {
 
   private final Layout layout;
   private final Collection<Action> actions;
   private final Collection<Actions> lists;
+  private final Collection<Part> parts;
+  private final Map<Part, JComponent> made = new java.util.LinkedHashMap<>();
+  private final JPanel north = new JPanel(new java.awt.GridLayout(0, 1));
+  private final JPanel south = new JPanel(new java.awt.GridLayout(0, 1));
   private final JMenuBar menus = new JMenuBar();
-  final JToolBar buttons = new JToolBar();
   private final JLabel status = new JLabel(" ");
+  private static Workbench current;
   private final Map<String, JComponent> open = new HashMap<>();
   private static final String PLACE = "place";
 
   public Workbench(Layout layout, Collection<Action> actions, Collection<Actions> lists) {
+    this(layout, actions, lists, List.of());
+  }
+
+  public Workbench(Layout layout, Collection<Action> actions, Collection<Actions> lists, Collection<Part> parts) {
     super(new BorderLayout());
     this.layout = layout;
     this.actions = actions;
     this.lists = lists;
-    buttons.setFloatable(false);
-    add(buttons, BorderLayout.NORTH);
+    this.parts = parts;
+    current = this;
+    south.add(status);
+    add(north, BorderLayout.NORTH);
     add(layout.area(), BorderLayout.CENTER);
-    add(status, BorderLayout.SOUTH);
+    add(south, BorderLayout.SOUTH);
     changed();
   }
 
-  /** A desk of everything the plugins and the application offer, made again when they change. */
-  public static Workbench of(PluginService plugins, Layout layout) {
-    Workbench desk = new Workbench(layout, plugins.roles(Action.class), plugins.roles(Actions.class));
+  /**
+   * A desk of everything the plugins and the application offer, made again when they change. It offers the window
+   * that brings plugins itself, under Tools: without it a desk with nothing on it would have no way to grow.
+   */
+  public static Workbench of(PluginService plugins, Layout layout, Actions... own) {
+    List<Actions> mine = new java.util.ArrayList<>(List.of(own));
+    mine.add(() -> List.of(new PluginsWindow("Tools/Plugins...", Widgets.icon(
+        dev.crystal.plugins.swing.PluginIcons.class.getResource("icons/1F9E9.svg"), Widgets.TOOLBAR_ICON_SIZE))));
+    Collection<Actions> theirs = plugins.roles(Actions.class);
+    Workbench desk = new Workbench(layout, plugins.roles(Action.class), new java.util.AbstractCollection<>() {
+      public java.util.Iterator<Actions> iterator() {
+        return Stream.concat(mine.stream(), theirs.stream()).iterator();
+      }
+
+      public int size() {
+        return mine.size() + theirs.size();
+      }
+    }, plugins.roles(Part.class));
     plugins.onChange(() -> SwingUtilities.invokeLater(desk::changed));
     return desk;
+  }
+
+  /** The desk on the screen, for a plugin's action that works on it: the last one made. */
+  public static Workbench current() {
+    return current;
+  }
+
+  /** How its windows are arranged. */
+  public Layout arrangement() {
+    return layout;
   }
 
   /** For the window that holds the desk. */
@@ -116,7 +150,6 @@ public class Workbench extends JPanel implements Desk {
   @Override
   public void changed() {
     menus.removeAll();
-    buttons.removeAll();
     getInputMap(WHEN_IN_FOCUSED_WINDOW).clear();
     getActionMap().clear();
     groups.clear();
@@ -125,12 +158,10 @@ public class Workbench extends JPanel implements Desk {
     offered.forEach(this::offer);
     for (java.awt.Component menu : menus.getComponents())
       if (((JMenu) menu).getItemCount() == 0) menus.remove(menu);
-    List<Action> missing = offered.stream().filter(action -> action.needs() != null).toList();
-    if (!missing.isEmpty()) buttons.add(more(missing, "More that can be had: choosing one brings its plugin"));
-    Widgets.tighten(buttons, 3);
     eachMenu(menus.getSubElements(), menu -> Widgets.scrollingWhenLong(menu.getPopupMenu()));
+    parts();
     menus.revalidate();
-    buttons.revalidate();
+    revalidate();
     repaint();
   }
 
@@ -183,16 +214,37 @@ public class Workbench extends JPanel implements Desk {
     };
   }
 
+  /** The button that does it, with its icon and its words as the tooltip. */
+  public JButton button(Action action) {
+    JButton button = new JButton(doing(action));
+    button.setToolTipText(action.text());
+    button.setHideActionText(true);
+    return button;
+  }
+
   private void offer(Action action) {
     JMenuItem item = item(action);
-    javax.swing.Action doing = item.getAction();
-    into(menuOf(action.path(), action.place()), item, action.place());
+    into(menuOf(dev.plugdesk.app.Application.it().placed(action.path()), action.place()), item, action.place());
     action.keys().forEach(key -> getInputMap(WHEN_IN_FOCUSED_WINDOW).put(key, action.path()));
-    getActionMap().put(action.path(), doing);
-    if (action.icon() != null && action.needs() == null) {
-      JButton button = buttons.add(doing);
-      button.setToolTipText(action.text());
-      button.setHideActionText(true);
+    getActionMap().put(action.path(), item.getAction());
+  }
+
+  /** Each part made once, on its side; told that things changed; gone when its plugin goes. */
+  private void parts() {
+    for (Part gone : List.copyOf(made.keySet()))
+      if (!parts.contains(gone)) {
+        north.remove(made.get(gone));
+        south.remove(made.get(gone));
+        made.remove(gone);
+      }
+    for (Part part : parts) {
+      JComponent component = made.computeIfAbsent(part, one -> {
+        JComponent made = one.make(this);
+        if (BorderLayout.SOUTH.equals(one.side())) south.add(made, 0);
+        else north.add(made);
+        return made;
+      });
+      part.changed(this, component);
     }
   }
 

@@ -38,4 +38,14 @@ class ReleasesTest {
     assertEquals("tool-calls", Releases.whichBoard("tool-calls-0.0.3.jar"));
     assertEquals("device-mouse", Releases.whichBoard("device-mouse.jar"));
   }
+
+  @Test
+  void theApplicationMovesAnItemOrAWholeMenu() {
+    Application sample = Application.it();
+
+    assertEquals("Emulator/Plugins...", sample.placed("Tools/Plugins..."));
+    assertEquals("View/Look/Metal", sample.placed("Window/Look/Metal"), "a menu moves with what is in it");
+    assertEquals("Windows/Tile", sample.placed("Windows/Tile"), "and only that menu, not one whose name starts the same");
+    assertEquals("example.org", sample.said("website"));
+  }
 }

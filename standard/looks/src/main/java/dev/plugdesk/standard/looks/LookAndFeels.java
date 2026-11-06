@@ -15,7 +15,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.plugdesk.desk;
+package dev.plugdesk.standard.looks;
+
+import dev.plugdesk.desk.Action;
+import dev.plugdesk.desk.Actions;
+import dev.plugdesk.desk.DeskConfiguration;
+import dev.plugdesk.desk.Look;
+import dev.plugdesk.desk.Widgets;
 
 
 import javax.swing.*;
@@ -134,6 +140,10 @@ public final class LookAndFeels {
     return () -> all().stream().<Action>map(laf -> new Action() {
       public String path() {
         return menu + "/" + laf.family + "/" + laf.name;
+      }
+
+      public int place() {
+        return 300;
       }
 
       public void run() {

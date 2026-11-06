@@ -103,7 +103,13 @@ public class Widgets {
           .getScaledInstance(TOOLBAR_ICON_SIZE, TOOLBAR_ICON_SIZE, Image.SCALE_SMOOTH));
     }
     URL file = Widgets.class.getResource("/icons/" + iconFile);
-    return drawn(file == null ? null : new com.github.weisj.jsvg.parser.SVGLoader().load(file), iconFile, TOOLBAR_ICON_SIZE);
+    if (file == null) throw new IllegalArgumentException("no icon " + iconFile);
+    return icon(file, TOOLBAR_ICON_SIZE);
+  }
+
+  /** An SVG wherever it is, drawn square at that size. */
+  public static ImageIcon icon(URL svg, int size) {
+    return drawn(new com.github.weisj.jsvg.parser.SVGLoader().load(svg), String.valueOf(svg), size);
   }
 
   /** An SVG drawn square at that size, antialiased. */
