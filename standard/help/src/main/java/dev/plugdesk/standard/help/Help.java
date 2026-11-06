@@ -12,15 +12,21 @@ import javax.swing.KeyStroke;
 import java.util.List;
 import java.util.stream.Stream;
 
-/** What the application is, as it says in its own file, and every key and what it does. */
+/**
+ * What the application is, as it says in its own file, and every key and what it does. The application may say where
+ * the keys go and which keys show them ({@code keymap} and {@code keymap.keys} in its file): an IDE's Keymap Reference.
+ */
 public class Help implements Actions {
 
   @Override
   public List<Action> actions() {
-    return List.of(new Doing("Help/Keys", this::keys), new Doing("Help/About", this::about));
+    String keymap = Application.it().said("keymap");
+    String keys = Application.it().said("keymap.keys");
+    return List.of(new Doing(keymap == null || keymap.isBlank() ? "Help/Keys" : keymap, this::keys,
+        keys == null || keys.isBlank() ? List.of() : List.of(KeyStroke.getKeyStroke(keys))), new Doing("Help/About", this::about, List.of()));
   }
 
-  private record Doing(String path, Runnable doing) implements Action {
+  private record Doing(String path, Runnable doing, List<KeyStroke> keys) implements Action {
     public void run() {
       doing.run();
     }
@@ -53,17 +59,18 @@ public class Help implements Actions {
     return title != null ? title : Application.it().name();
   }
 
-  /** Every action that has keys, by where it is in the menus, with all its keys. */
+  /** Every action that has keys, by where it is in the menus, with all its keys and what it does, when it says. */
   List<String[]> keysOf(Workbench desk) {
     return desk.offered().stream().filter(action -> !action.keys().isEmpty())
         .map(action -> new String[]{Application.it().placed(action.path()).replace("/", " > "),
-            String.join(", ", action.keys().stream().map(Help::said).toList())})
+            String.join(", ", action.keys().stream().map(Help::said).toList()),
+            action.description() == null ? "" : action.description()})
         .toList();
   }
 
   private void keys() {
     Workbench desk = Workbench.current();
-    JTable table = new JTable(keysOf(desk).toArray(String[][]::new), new String[]{"What", "Keys"});
+    JTable table = new JTable(keysOf(desk).toArray(String[][]::new), new String[]{"What", "Keys", "What it does"});
     table.setDefaultEditor(Object.class, null);
     JOptionPane.showMessageDialog(desk, new JScrollPane(table), "Keys", JOptionPane.PLAIN_MESSAGE);
   }
