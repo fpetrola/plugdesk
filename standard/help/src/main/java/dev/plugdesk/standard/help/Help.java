@@ -59,9 +59,19 @@ public class Help implements Actions {
     return title != null ? title : Application.it().name();
   }
 
-  /** Every action that has keys, by where it is in the menus, with all its keys and what it does, when it says. */
+  /**
+   * Every action that has keys, by where it is in the menus, with all its keys and what it does, when it says: menu by
+   * menu, as the bar has them, and in each as its items go.
+   */
   List<String[]> keysOf(Workbench desk) {
+    List<String> bar = new java.util.ArrayList<>();
+    for (int i = 0; i < desk.menus().getMenuCount(); i++) bar.add(desk.menus().getMenu(i).getText());
+    java.util.function.ToIntFunction<Action> menu = action -> {
+      String top = Application.it().placed(action.path()).split("/")[0];
+      return bar.contains(top) ? bar.indexOf(top) : bar.size();
+    };
     return desk.offered().stream().filter(action -> !action.keys().isEmpty())
+        .sorted(java.util.Comparator.comparingInt(menu))
         .map(action -> new String[]{Application.it().placed(action.path()).replace("/", " > "),
             String.join(", ", action.keys().stream().map(Help::said).toList()),
             action.description() == null ? "" : action.description()})

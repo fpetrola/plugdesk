@@ -59,4 +59,23 @@ class HelpTest {
     assertEquals("Help/Keymap Reference", keys.path());
     assertEquals(List.of(KeyStroke.getKeyStroke("ctrl shift L")), keys.keys());
   }
+
+  /** Menu by menu, as the bar has them, not by each action's place: an action of the last menu with a low place goes last. */
+  @Test
+  void theKeysGoMenuByMenu() throws Exception {
+    SwingUtilities.invokeAndWait(() -> {
+      Workbench desk = new Workbench(new Mdi(), List.of(
+          new Placed("Help/Find", List.of(KeyStroke.getKeyStroke("ctrl F")), 0),
+          new Placed("File/Open...", List.of(KeyStroke.getKeyStroke("ctrl O")), 10),
+          new Placed("File/Save", List.of(KeyStroke.getKeyStroke("ctrl S")), 20)), List.of());
+
+      assertEquals(List.of("File > Open...", "File > Save", "Help > Find"),
+          new Help().keysOf(desk).stream().map(row -> row[0]).toList());
+    });
+  }
+
+  record Placed(String path, List<KeyStroke> keys, int place) implements Action {
+    public void run() {
+    }
+  }
 }
