@@ -81,6 +81,8 @@ public class Widgets {
   private static void choose(Component parent, String title, FileFilter filter, String saveAs,
                              Consumer<File> chosen) {
     JFileChooser chooser = new JFileChooser(lastDirectory);
+    // ROMs, saved states and settings of emulators live under hidden folders like ~/.oozx.
+    chooser.setFileHidingEnabled(false);
     chooser.setDialogTitle(title);
     chooser.setFileFilter(filter);
     if (saveAs != null && !saveAs.isEmpty()) {
