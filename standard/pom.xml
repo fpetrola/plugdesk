@@ -6,10 +6,10 @@
     <parent>
         <groupId>com.github.fpetrola.plugdesk</groupId>
         <artifactId>plugdesk-parent</artifactId>
-        <version>0.1.0</version>
+        <version>0.1.1</version>
     </parent>
 
-    <groupId>com.github.fpetrola.plugdesk.standard</groupId>
+    <groupId>com.github.fpetrola.plugdesk</groupId>
     <artifactId>standard</artifactId>
     <packaging>pom</packaging>
     <name>Plugdesk :: Standard plugins</name>

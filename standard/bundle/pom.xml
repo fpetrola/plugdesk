@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.github.fpetrola.plugdesk.standard</groupId>
+        <groupId>com.github.fpetrola.plugdesk</groupId>
         <artifactId>standard</artifactId>
-        <version>0.1.0</version>
+        <version>0.1.1</version>
     </parent>
 
     <artifactId>plugdesk-standard</artifactId>
@@ -14,7 +14,7 @@
     <description>The standard plugins inside one jar: an application that depends on it starts with them installed.</description>
 
     <properties>
-        <crystal.bundleGroupId>com.github.fpetrola.plugdesk.standard</crystal.bundleGroupId>
+        <crystal.bundleGroupId>com.github.fpetrola.plugdesk</crystal.bundleGroupId>
         <crystal.bundleVersion>${project.version}</crystal.bundleVersion>
         <!-- Not a plugin: the jar the plugins travel in. -->
         <crystal.skip>true</crystal.skip>
@@ -23,37 +23,37 @@
     <!-- Built after them, so they are in the local repository when they are bundled; never on anyone's class path. -->
     <dependencies>
         <dependency>
-            <groupId>com.github.fpetrola.plugdesk.standard</groupId>
+            <groupId>com.github.fpetrola.plugdesk</groupId>
             <artifactId>desk-looks</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.fpetrola.plugdesk.standard</groupId>
+            <groupId>com.github.fpetrola.plugdesk</groupId>
             <artifactId>desk-suggestions</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.fpetrola.plugdesk.standard</groupId>
+            <groupId>com.github.fpetrola.plugdesk</groupId>
             <artifactId>desk-windows</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.fpetrola.plugdesk.standard</groupId>
+            <groupId>com.github.fpetrola.plugdesk</groupId>
             <artifactId>desk-docks</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.fpetrola.plugdesk.standard</groupId>
+            <groupId>com.github.fpetrola.plugdesk</groupId>
             <artifactId>desk-toolbar</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.fpetrola.plugdesk.standard</groupId>
+            <groupId>com.github.fpetrola.plugdesk</groupId>
             <artifactId>desk-help</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
