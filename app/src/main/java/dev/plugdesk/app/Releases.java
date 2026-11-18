@@ -118,14 +118,9 @@ public class Releases implements Configuration.Saves {
     return jar.replaceFirst("-\\d.*$", "").replaceFirst("\\.jar$", "");
   }
 
-  /** The releases of the repository, reduced to the ones that are a device and carry a jar. */
   /**
-   * The answer of a moment ago, rather than the same question again.
-   * <p>
-   * The archive allows sixty questions an hour to an address that does not say who it is, and
-   * the list is asked for every time the window is opened or told to look again. It is also the
-   * same address for everybody behind one router. What is published changes when a build runs,
-   * so an answer a few minutes old is the same answer.
+   * The answer of a moment ago, rather than the same download again: the list is asked for every
+   * time the window is opened or told to look again, and it only changes when a build runs.
    */
   private static List<Board> lastAnswer;
   private static long lastAsked;
@@ -158,12 +153,8 @@ public class Releases implements Configuration.Saves {
     }
     String repository = theOne().repository;
     if (repository == null) return List.of();
-    HttpResponse<String> answer = client().send(
-        asking("https://api.github.com/repos/" + repository + "/releases?per_page=100")
-            .header("Accept", "application/vnd.github+json").build(),
-        HttpResponse.BodyHandlers.ofString());
-    if (answer.statusCode() != 200)
-      throw new IOException(whatTheArchiveMeant(repository, answer));
+    HttpResponse<String> answer = client().send(asking(catalogOf(repository)).build(), HttpResponse.BodyHandlers.ofString());
+    if (answer.statusCode() != 200) throw new IOException(repository + " answered " + answer.statusCode());
 
     List<Board> boards = boards(answer.body());
     lastAnswer = boards;
@@ -171,7 +162,7 @@ public class Releases implements Configuration.Saves {
     return boards;
   }
 
-  /** The releases in an answer of the archive that are something to plug in, each with its jar. */
+  /** The releases in the catalog that are something to plug in, each with its jar. */
   static List<Board> boards(String answer) throws IOException {
     List<Board> boards = new ArrayList<>();
     for (JsonNode release : new ObjectMapper().readTree(answer)) {
@@ -201,25 +192,11 @@ public class Releases implements Configuration.Saves {
   }
 
   /**
-   * What a refusal was about, in words. A 403 with nothing left of the hour's sixty questions is
-   * not a repository nobody may see: it is this address having asked too much, and it answers
-   * again by itself at a time the archive says. Told as a number it reads like the plugins are
-   * gone.
+   * The list of releases the repository's build publishes as a file, in the shape the archive's API
+   * answers. A download and not a question to the API, which allows sixty an hour per address.
    */
-  private static String whatTheArchiveMeant(String repository, HttpResponse<String> answer) {
-    if (answer.statusCode() == 403 && "0".equals(header(answer, "x-ratelimit-remaining"))) {
-      String when = header(answer, "x-ratelimit-reset");
-      return "github is not answering this address for now: it allows "
-          + header(answer, "x-ratelimit-limit") + " questions an hour without a name and they are"
-          + " used up" + (when == null ? "" : ", so it answers again at " + java.time.LocalTime
-          .ofInstant(java.time.Instant.ofEpochSecond(Long.parseLong(when)),
-              java.time.ZoneId.systemDefault()).withNano(0));
-    }
-    return repository + " answered " + answer.statusCode();
-  }
-
-  private static String header(HttpResponse<String> answer, String named) {
-    return answer.headers().firstValue(named).orElse(null);
+  static String catalogOf(String repository) {
+    return "https://github.com/" + repository + "/releases/download/catalog/catalog.json";
   }
 
   /**
