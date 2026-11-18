@@ -10,22 +10,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # The plugin framework this is built on publishes no artifacts, so its tree is built here, at a tag: what is
-    # pushed there while it is being worked on does not break this build.
-    - uses: actions/checkout@v4
-      with:
-        repository: fpetrola/crystal-plugins
-        ref: a2b53897c122379259a708d53b79997ae922b028
-        path: crystal-plugins
-
     - uses: actions/setup-java@v4
       with:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
-
-    - name: Build the plugin framework
-      run: mvn -B -U -DskipTests install -f crystal-plugins/pom.xml
 
     - name: Build and test
       # install and not verify: the standard plugins are bundled from the local repository, so they are installed

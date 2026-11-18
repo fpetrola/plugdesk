@@ -4,13 +4,20 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>dev.plugdesk</groupId>
+    <groupId>com.github.fpetrola.plugdesk</groupId>
     <artifactId>plugdesk-parent</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
     <packaging>pom</packaging>
 
     <name>Plugdesk</name>
     <description>The Swing base of an application that grows by crystal-plugins: a desk that knows nothing of the application on it.</description>
+
+    <repositories>
+        <repository><id>jitpack.io</id><url>https://jitpack.io</url></repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository><id>jitpack.io</id><url>https://jitpack.io</url></pluginRepository>
+    </pluginRepositories>
 
     <modules>
         <module>app</module>
@@ -21,7 +28,7 @@
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <crystal.version>0.1.0-SNAPSHOT</crystal.version>
+        <crystal.version>0.1.1</crystal.version>
         <jackson.version>2.16.0</jackson.version>
         <junit.version>5.11.4</junit.version>
     </properties>
@@ -29,22 +36,22 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>dev.crystal.plugins</groupId>
+                <groupId>com.github.fpetrola.crystal-plugins</groupId>
                 <artifactId>framework-api</artifactId>
                 <version>${crystal.version}</version>
             </dependency>
             <dependency>
-                <groupId>dev.crystal.plugins</groupId>
+                <groupId>com.github.fpetrola.crystal-plugins</groupId>
                 <artifactId>framework-runtime</artifactId>
                 <version>${crystal.version}</version>
             </dependency>
             <dependency>
-                <groupId>dev.crystal.plugins</groupId>
+                <groupId>com.github.fpetrola.crystal-plugins</groupId>
                 <artifactId>framework-build-processor</artifactId>
                 <version>${crystal.version}</version>
             </dependency>
             <dependency>
-                <groupId>dev.crystal.plugins</groupId>
+                <groupId>com.github.fpetrola.crystal-plugins</groupId>
                 <artifactId>framework-guice</artifactId>
                 <version>${crystal.version}</version>
             </dependency>
@@ -54,7 +61,7 @@
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
-                <groupId>dev.crystal.plugins</groupId>
+                <groupId>com.github.fpetrola.crystal-plugins</groupId>
                 <artifactId>framework-swing</artifactId>
                 <version>${crystal.version}</version>
             </dependency>
