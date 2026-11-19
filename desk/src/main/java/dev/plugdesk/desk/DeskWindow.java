@@ -42,6 +42,28 @@ public final class DeskWindow {
     return frame;
   }
 
+  /** Whatever files a person lets go of over the desk are handed over, one by one, as files. */
+  public static void dropping(JComponent desk, java.util.function.Consumer<java.io.File> handed) {
+    desk.setTransferHandler(new javax.swing.TransferHandler() {
+      @Override
+      public boolean canImport(TransferSupport dropped) {
+        return dropped.isDataFlavorSupported(java.awt.datatransfer.DataFlavor.javaFileListFlavor);
+      }
+
+      @Override
+      public boolean importData(TransferSupport dropped) {
+        try {
+          for (Object file : (java.util.List<?>) dropped.getTransferable().getTransferData(java.awt.datatransfer.DataFlavor.javaFileListFlavor)) {
+            handed.accept((java.io.File) file);
+          }
+          return true;
+        } catch (java.awt.datatransfer.UnsupportedFlavorException | java.io.IOException notFiles) {
+          return false;
+        }
+      }
+    });
+  }
+
   /**
    * Puts a desk in a window that had something else, such as what it said while the desk was being made: with its
    * menus, and its layout arranged as it was kept.
